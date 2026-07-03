@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/shell/AppShell";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { getSessionUser } from "@/lib/supabase/server";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -16,6 +17,16 @@ export const metadata: Metadata = {
   title: "GSIP — Global Strategic Intelligence Platform",
   description:
     "Strategic Intelligence Operating System: Domain → Entity → Event → Analysis → Action",
+  applicationName: "GSIP",
+  appleWebApp: { capable: true, title: "GSIP", statusBarStyle: "black-translucent" },
+  formatDetection: { telephone: false },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f3f6f3" },
+    { media: "(prefers-color-scheme: dark)", color: "#05080a" },
+  ],
 };
 
 // Set the theme before paint to avoid a flash of the wrong theme.
@@ -41,6 +52,7 @@ export default async function RootLayout({
       <body className="min-h-full">
         <div className="grain" aria-hidden />
         <AppShell user={navUser}>{children}</AppShell>
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
