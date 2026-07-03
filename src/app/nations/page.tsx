@@ -87,9 +87,9 @@ export default async function NationsPage() {
   return (
     <div>
       <PageHeader
-        layer="National Strategic Intelligence"
+        layer="Intelijen Strategis Nasional"
         icon="landmark"
-        title="National Excellence"
+        title="Keunggulan Nasional"
         subtitle="Bukan sekadar 'apakah sebuah negara maju' (Status), tetapi 'mengapa ia unggul' (Capability) dan 'apakah keunggulan itu dapat dipertahankan' (Future Readiness). Model 3-sumbu, 18 pilar, dari kerangka lembaga internasional (World Bank, WGI, UNDP, WIPO, UNIDO)."
       />
 

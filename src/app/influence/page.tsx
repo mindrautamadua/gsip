@@ -12,6 +12,7 @@ type Attrs = {
   title?: string;
   wiki?: string;
   kind?: string;
+  domain?: string;
   influence_breakdown?: { degree?: number; event_impact?: number; market_cap_usd_bn?: number | null };
 } | null;
 type Row = {
@@ -134,9 +135,9 @@ export default async function InfluencePage() {
   return (
     <div>
       <PageHeader
-        layer="Who moves the world"
+        layer="Siapa yang menggerakkan dunia"
         icon="crown"
-        title="Global Influence"
+        title="Pengaruh Global"
         subtitle="Peta empiris pengaruh global: negara, organisasi, perusahaan — dan siapa orang di baliknya. Skor influence 0–100 dan rantai kepemimpinan menjadikan pertanyaan 'siapa yang menggerakkan dunia' terukur, bukan naratif."
       />
 
@@ -144,7 +145,7 @@ export default async function InfluencePage() {
         {/* Empirical share — US vs China */}
         <section className="card p-6">
           <div className="text-xs font-mono uppercase tracking-widest text-[var(--muted)] mb-1">
-            Influence by Nation — empirical share
+            Pengaruh per Negara — pangsa empiris
           </div>
           <p className="text-sm text-[var(--muted)] mb-5 max-w-2xl">
             Agregat bobot pengaruh (negara + organisasi + perusahaan + tokoh) per bendera. Lensa terukur untuk
@@ -153,7 +154,7 @@ export default async function InfluencePage() {
           <div className="flex items-end gap-6 mb-5">
             <div>
               <div className="display text-4xl font-semibold text-accent">{us}%</div>
-              <div className="text-xs text-[var(--muted)] mt-1">United States</div>
+              <div className="text-xs text-[var(--muted)] mt-1">Amerika Serikat</div>
             </div>
             <div className="text-[var(--muted)] text-2xl pb-2">vs</div>
             <div>
@@ -177,55 +178,63 @@ export default async function InfluencePage() {
         {/* Global influencers */}
         <section>
           <div className="mb-4">
-            <span className="eyebrow">The people behind</span>
-            <h2 className="display text-2xl font-semibold tracking-tight mt-3">Global Influencers</h2>
+            <span className="eyebrow">Tokoh di baliknya</span>
+            <h2 className="display text-2xl font-semibold tracking-tight mt-3">Tokoh Paling Berpengaruh</h2>
           </div>
           <InfluencerCards cards={personCards} />
         </section>
 
         {/* State-level power */}
         <div className="grid gap-6 lg:grid-cols-2">
-          <RankList title="Multilateral Organizations" rows={toRankRows(orgs, photos)} />
-          <RankList title="Most Influential Companies" rows={toRankRows(companies, photos)} />
+          <RankList title="Organisasi Multilateral" rows={toRankRows(orgs, photos)} />
+          <RankList title="Perusahaan Paling Berpengaruh" rows={toRankRows(companies, photos)} />
         </div>
 
         {/* Non-state power */}
         <div>
-          <span className="eyebrow">Non-state power</span>
+          <span className="eyebrow">Kekuatan non-negara</span>
           <div className="grid gap-6 lg:grid-cols-3 mt-4">
-            <RankList title="Sovereign Wealth Funds" rows={toRankRows(swf, photos)} />
+            <RankList title="Dana Kekayaan Negara" rows={toRankRows(swf, photos)} />
             <RankList title="Media" rows={toRankRows(media, photos)} />
-            <RankList title="Think Tanks" rows={toRankRows(thinkTanks, photos)} />
+            <RankList title="Lembaga Pemikir" rows={toRankRows(thinkTanks, photos)} />
           </div>
         </div>
 
         {/* Strategic resources & technology */}
         <div>
-          <span className="eyebrow">Strategic resources & tech</span>
+          <span className="eyebrow">Sumber daya & teknologi strategis</span>
           <div className="grid gap-6 lg:grid-cols-2 mt-4">
-            <RankList title="Strategic Commodities" rows={toRankRows(commodities, photos)} />
-            <RankList title="Key Technologies" rows={toRankRows(technologies, photos)} />
+            <RankList title="Komoditas Strategis" rows={toRankRows(commodities, photos)} />
+            <RankList title="Teknologi Kunci" rows={toRankRows(technologies, photos)} />
           </div>
           <div className="grid gap-6 lg:grid-cols-2 mt-4">
-            <RankList title="Maritime Chokepoints" rows={toRankRows(chokepoints, photos)} />
+            <RankList title="Titik Sempit Maritim" rows={toRankRows(chokepoints, photos)} />
           </div>
         </div>
 
-        <RankList title="Most Influential Nations" rows={toRankRows(nations, photos)} wide />
+        <RankList title="Negara Paling Berpengaruh" rows={toRankRows(nations, photos)} wide />
       </div>
     </div>
   );
 }
 
 function toRankRows(rows: Row[], photos: Record<string, string>): RankRow[] {
-  return rows.map((e) => ({
-    id: e.id,
-    name: e.name,
-    slug: e.slug,
-    score: inf(e.attributes),
-    photo: photos[e.attributes?.wiki ?? ""] ?? null,
-    icon: e.entity_types?.icon ?? null,
-    why: whyOf(e.attributes),
-  }));
+  return rows.map((e) => {
+    // Prefer a real brand logo when the entity carries a domain (companies),
+    // with a Google-favicon fallback; otherwise fall back to the Wikipedia image.
+    const domain = e.attributes?.domain;
+    const logo = domain ? `https://logo.clearbit.com/${domain}` : null;
+    const favicon = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null;
+    return {
+      id: e.id,
+      name: e.name,
+      slug: e.slug,
+      score: inf(e.attributes),
+      photo: logo ?? photos[e.attributes?.wiki ?? ""] ?? null,
+      photoFallback: favicon,
+      icon: e.entity_types?.icon ?? null,
+      why: whyOf(e.attributes),
+    };
+  });
 }
 

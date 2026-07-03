@@ -10,9 +10,33 @@ export type RankRow = {
   slug: string;
   score: number;
   photo: string | null;
+  photoFallback?: string | null;
   icon: string | null;
   why?: string | null;
 };
+
+// Logo/photo with a graceful fallback chain: primary → fallback → icon glyph.
+function RowLogo({ photo, fallback, name, icon }: { photo: string | null; fallback?: string | null; name: string; icon: string | null }) {
+  const chain = [photo, fallback].filter((s): s is string => !!s);
+  const [idx, setIdx] = useState(0);
+  const src = chain[idx];
+  if (!src) {
+    return (
+      <span className="h-7 w-7 shrink-0 rounded-md grid place-items-center bg-[var(--surface-2)] text-accent">
+        <Icon name={icon} size={14} />
+      </span>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={name}
+      onError={() => setIdx((i) => i + 1)}
+      className="h-7 w-7 shrink-0 rounded-md object-contain bg-white/60 border border-[var(--border)]"
+    />
+  );
+}
 
 // Ranked entity list (organizations / companies / nations) — each row opens the
 // shared profile modal instead of navigating away.
@@ -31,14 +55,7 @@ export function RankList({ title, rows, wide = false }: { title: string; rows: R
             className="flex items-center gap-3 group text-left cursor-pointer w-full min-w-0"
           >
             <span className="w-5 shrink-0 text-xs font-mono text-[var(--muted)]/60 text-right">{i + 1}</span>
-            {e.photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={e.photo} alt={e.name} className="h-7 w-7 shrink-0 rounded-md object-contain bg-white/60 border border-[var(--border)]" />
-            ) : (
-              <span className="h-7 w-7 shrink-0 rounded-md grid place-items-center bg-[var(--surface-2)] text-accent">
-                <Icon name={e.icon} size={14} />
-              </span>
-            )}
+            <RowLogo photo={e.photo} fallback={e.photoFallback} name={e.name} icon={e.icon} />
             <span className="flex-1 min-w-0">
               <span className="block text-sm truncate group-hover:text-accent transition-colors">{e.name}</span>
               {e.why && (

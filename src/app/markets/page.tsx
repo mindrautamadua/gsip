@@ -24,9 +24,9 @@ export default async function MarketsPage() {
   return (
     <div>
       <PageHeader
-        layer="Markets · Quantitative Ground-Truth"
+        layer="Pasar · Dasar Kuantitatif"
         icon="candlestick-chart"
-        title="Market Signals"
+        title="Sinyal Pasar"
         subtitle="Instrumen strategis yang mengkuantifikasi narasi intelijen — rupiah, yuan, emas, dan sektor semikonduktor. Data via TwelveData, di-cache 5 menit."
       />
 

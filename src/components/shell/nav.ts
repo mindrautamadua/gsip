@@ -10,58 +10,65 @@ export const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
   {
     title: null,
     items: [
-      { href: "/", label: "Dashboard", icon: "layout-dashboard" },
-      { href: "/insights", label: "Insights", icon: "sparkles" },
+      { href: "/", label: "Cockpit", icon: "layout-dashboard" },
+      { href: "/pulse", label: "Global Pulse", icon: "orbit" },
+      { href: "/overview", label: "Ringkasan Strategis", icon: "layout-panel-top" },
+      { href: "/insights", label: "Insight", icon: "sparkles" },
       { href: "/brief", label: "Intelligence Brief", icon: "newspaper", requires: "auth" },
+      { href: "/guide", label: "Panduan", icon: "book-open" },
     ],
   },
   {
-    title: "Layer 1 · Domain",
-    items: [{ href: "/domains", label: "Strategic Domains", icon: "globe", layer: "L1" }],
-  },
-  {
-    title: "Layer 2 · Entity",
+    title: "Peristiwa, Risiko & Peluang",
     items: [
-      { href: "/taxonomy", label: "GICS Taxonomy", icon: "network", layer: "L2" },
-      { href: "/graph", label: "Knowledge Graph", icon: "waypoints", layer: "L2" },
-      { href: "/influence", label: "Global Influence", icon: "crown", layer: "L2" },
-      { href: "/entities", label: "Entities", icon: "share-2", layer: "L2" },
+      { href: "/events", label: "Peristiwa Strategis", icon: "radar" },
+      { href: "/materiality", label: "Yang Paling Penting", icon: "scan-search" },
+      { href: "/posture", label: "Register Risiko & Peluang", icon: "shield-alert" },
+      { href: "/heatmap", label: "Heatmap Risiko & Peluang", icon: "grid-3x3" },
     ],
   },
   {
-    title: "Layer 3 · Event",
-    items: [{ href: "/events", label: "Strategic Events", icon: "radar", layer: "L3" }],
+    title: "Entitas & Jaringan",
+    items: [
+      { href: "/graph", label: "Knowledge Graph", icon: "waypoints" },
+      { href: "/entities", label: "Entitas", icon: "share-2" },
+      { href: "/influence", label: "Pengaruh Global", icon: "crown" },
+      { href: "/domains", label: "Domain Strategis", icon: "globe" },
+      { href: "/taxonomy", label: "Taksonomi GICS", icon: "network" },
+    ],
   },
   {
-    title: "National Strategic Intelligence",
-    items: [{ href: "/nations", label: "National Excellence", icon: "landmark" }],
+    title: "Benchmark & Posisi",
+    items: [
+      { href: "/benchmark", label: "Benchmark Kompetitif", icon: "swords" },
+      { href: "/nations", label: "Keunggulan Nasional", icon: "landmark" },
+      { href: "/fortune-global-500", label: "Fortune Global 500", icon: "award" },
+    ],
   },
   {
     title: "Geoekonomi",
     items: [
-      { href: "/china-industry", label: "China Dominance", icon: "factory" },
-      { href: "/dependency", label: "Strategic Dependency", icon: "git-compare-arrows" },
+      { href: "/china-industry", label: "Dominasi China", icon: "factory" },
+      { href: "/dependency", label: "Ketergantungan Strategis", icon: "git-compare-arrows" },
+      { href: "/substitution", label: "Substitusi & Pemenang", icon: "split" },
     ],
-  },
-  {
-    title: "Markets",
-    items: [{ href: "/markets", label: "Market Signals", icon: "candlestick-chart" }],
   },
   {
     title: "Foresight",
     items: [
-      { href: "/predictions", label: "Prediction Ledger", icon: "target", requires: "auth" },
-      { href: "/scenarios", label: "Value at Stake", icon: "git-fork" },
-      { href: "/trajectory", label: "Trajectory", icon: "activity" },
+      { href: "/scenarios", label: "Skenario & Nilai", icon: "git-fork" },
+      { href: "/predictions", label: "Buku Prediksi", icon: "target", requires: "auth" },
+      { href: "/trajectory", label: "Trajektori", icon: "activity" },
     ],
   },
   {
-    title: "Pipeline",
-    items: [{ href: "/ingest", label: "Ingestion", icon: "rss", requires: "auth" }],
-  },
-  {
-    title: "Admin",
-    items: [{ href: "/admin/users", label: "User Management", icon: "users", requires: "admin" }],
+    title: "Pasar & Sistem",
+    items: [
+      { href: "/markets", label: "Sinyal Pasar", icon: "candlestick-chart" },
+      { href: "/landscape", label: "Lanskap Kompetitor", icon: "map" },
+      { href: "/ingest", label: "Ingestion", icon: "rss", requires: "auth" },
+      { href: "/admin/users", label: "Manajemen User", icon: "users", requires: "admin" },
+    ],
   },
 ];
 

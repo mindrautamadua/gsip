@@ -48,7 +48,7 @@ export default async function BriefPage() {
   return (
     <div>
       <PageHeader
-        layer="Executive · Dissemination"
+        layer="Eksekutif · Diseminasi"
         icon="newspaper"
         title="Intelligence Brief"
         subtitle="Ringkasan eksekutif yang disintesis otomatis dari seluruh intelijen terbaru — top signals, pergeseran domain, dan rekomendasi agregat untuk pengambil keputusan."

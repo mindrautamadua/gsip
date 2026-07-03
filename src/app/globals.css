@@ -16,6 +16,14 @@
   --accent-strong: #26833f;
   --amber: #f59e0b;
   --gold: #f59e0b;
+  /* ── semantic signal tokens (meaning, not brand) ──
+     Kept distinct from --accent so "brand green" ≠ "good/opportunity green". */
+  --risk: #e11d48;        /* rose-600  — risiko / bahaya            */
+  --opportunity: #0d9488; /* teal-600  — peluang (teal, bukan brand green) */
+  --status-open: #0284c7;      /* sky-600   */
+  --status-progress: #d97706;  /* amber-600 */
+  --status-done: #059669;      /* emerald-600 */
+  --status-cancelled: var(--muted);
   /* signature physics easing */
   --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
@@ -46,6 +54,65 @@ body {
     radial-gradient(46rem 40rem at 96% 96%, rgba(245, 158, 11, 0.04), transparent 60%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
+}
+
+/* ============ Aurora ambience ============ */
+/* Fixed, behind all chrome (AppShell content is z-10). Soft drifting blobs in
+   the brand palette; blurred so they read as light, not shapes. */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(72px);
+  opacity: 0.55;
+  will-change: transform;
+  mix-blend-mode: multiply;
+}
+.aurora-a {
+  width: 46rem;
+  height: 40rem;
+  top: -14rem;
+  right: -10rem;
+  background: radial-gradient(circle at 30% 30%, rgba(47, 158, 84, 0.5), transparent 68%);
+  animation: aurora-a 26s var(--ease-fluid) infinite alternate;
+}
+.aurora-b {
+  width: 40rem;
+  height: 36rem;
+  bottom: -12rem;
+  left: -8rem;
+  background: radial-gradient(circle at 60% 40%, rgba(13, 148, 136, 0.42), transparent 66%);
+  animation: aurora-b 32s var(--ease-fluid) infinite alternate;
+}
+.aurora-c {
+  width: 34rem;
+  height: 30rem;
+  top: 32%;
+  left: 46%;
+  background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.32), transparent 64%);
+  animation: aurora-c 38s var(--ease-fluid) infinite alternate;
+}
+@keyframes aurora-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-8rem, 6rem, 0) scale(1.18); }
+}
+@keyframes aurora-b {
+  from { transform: translate3d(0, 0, 0) scale(1.05); }
+  to   { transform: translate3d(7rem, -5rem, 0) scale(0.9); }
+}
+@keyframes aurora-c {
+  from { transform: translate3d(0, 0, 0) scale(0.95); }
+  to   { transform: translate3d(-6rem, -7rem, 0) scale(1.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob { animation: none; }
 }
 
 /* grain overlay disabled on the light theme (reads as dirt) */
@@ -104,6 +171,31 @@ body {
 .sev-3 { background: rgba(245, 158, 11, 0.12); color: #b45309; border-color: rgba(245, 158, 11, 0.32); }
 .sev-4 { background: rgba(249, 115, 22, 0.12); color: #c2410c; border-color: rgba(249, 115, 22, 0.32); }
 .sev-5 { background: rgba(244, 63, 94, 0.12); color: #be123c; border-color: rgba(244, 63, 94, 0.32); }
+
+/* ── status chip (open / in-progress / done / cancelled) ──
+   Single source of truth — components reference these, not raw tailwind tones. */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 9999px;
+  border: 1px solid;
+  padding: 0.1rem 0.5rem;
+  font-size: 10px;
+  line-height: 1.4;
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+.status-open      { color: var(--status-open);      border-color: color-mix(in srgb, var(--status-open) 30%, transparent);      background: color-mix(in srgb, var(--status-open) 12%, transparent); }
+.status-progress  { color: var(--status-progress);  border-color: color-mix(in srgb, var(--status-progress) 30%, transparent);  background: color-mix(in srgb, var(--status-progress) 12%, transparent); }
+.status-done      { color: var(--status-done);      border-color: color-mix(in srgb, var(--status-done) 30%, transparent);      background: color-mix(in srgb, var(--status-done) 12%, transparent); }
+.status-cancelled { color: var(--muted);            border-color: var(--border);                                                background: var(--surface-2); }
+/* text-only variants (no chip) */
+.txt-open { color: var(--status-open); }
+.txt-progress { color: var(--status-progress); }
+.txt-done { color: var(--status-done); }
+.txt-cancelled { color: var(--muted); }
+.txt-risk { color: var(--risk); }
+.txt-opportunity { color: var(--opportunity); }
 
 /* ============================================================
    DARK THEME OVERRIDES  (data-theme="dark")
@@ -164,6 +256,15 @@ body {
 [data-theme="dark"] .sev-3 { color: #fcd34d; }
 [data-theme="dark"] .sev-4 { color: #fdba74; }
 [data-theme="dark"] .sev-5 { color: #fda4af; }
+
+/* brighter signal tokens on dark so they read on the OLED canvas */
+[data-theme="dark"] {
+  --risk: #fb7185;
+  --opportunity: #2dd4bf;
+  --status-open: #38bdf8;
+  --status-progress: #fbbf24;
+  --status-done: #34d399;
+}
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(160, 220, 185, 0.12); }
 [data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: rgba(160, 220, 185, 0.2); }

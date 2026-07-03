@@ -65,7 +65,7 @@ export default async function GraphPage() {
   return (
     <div>
       <PageHeader
-        layer="Layer 2 · Strategic Entity — Knowledge Graph"
+        layer="Layer 2 · Entitas Strategis — Knowledge Graph"
         icon="waypoints"
         title="Knowledge Graph"
         subtitle={`${nodes.length} entitas · ${links.length} relasi. Tarik node untuk mengatur, scroll untuk zoom, klik untuk fokus & lihat tetangga. Warna = kategori entitas.`}

@@ -33,9 +33,9 @@ export default async function TaxonomyPage() {
   return (
     <div>
       <PageHeader
-        layer="Layer 2 · Strategic Entity — Classification"
+        layer="Layer 2 · Entitas Strategis — Klasifikasi"
         icon="network"
-        title="GICS Taxonomy"
+        title="Taksonomi GICS"
         subtitle="Global Industry Classification Standard (MSCI/S&P): 11 Sectors → 25 Industry Groups → 74 Industries. Fondasi klasifikasi untuk entitas Industry & Company di knowledge graph."
       />
       <div className="px-6 md:px-10 pb-24 max-w-6xl">

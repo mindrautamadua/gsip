@@ -40,7 +40,7 @@ export default async function DependencyPage() {
       <PageHeader
         layer="Geoekonomi · Ketergantungan Strategis"
         icon="git-compare-arrows"
-        title="Strategic Dependency"
+        title="Ketergantungan Strategis"
         subtitle="Bukan sekadar 'siapa berkuasa', tetapi 'siapa bergantung pada siapa — dan ke arah mana trennya'. Lensa paparan timbal-balik (mengadaptasi MGI China-World Exposure Index): paparan tiap negara ke China vs ketergantungan balik China."
       />
 

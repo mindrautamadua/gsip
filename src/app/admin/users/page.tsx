@@ -33,7 +33,7 @@ export default async function UsersPage() {
   return (
     <div>
       <PageHeader
-        layer="Admin · Identity & Access"
+        layer="Admin · Identitas & Akses"
         icon="users"
         title="User Management"
         subtitle="Kelola akun, role (viewer / analyst / admin), dan status akses. Perubahan role langsung berlaku pada izin RLS di seluruh platform."

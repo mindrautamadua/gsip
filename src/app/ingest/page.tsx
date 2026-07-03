@@ -22,7 +22,7 @@ export default async function IngestPage() {
   return (
     <div>
       <PageHeader
-        layer="Pipeline · Collection"
+        layer="Pipeline · Pengumpulan"
         icon="rss"
         title="Intelligence Ingestion"
         subtitle="Memindai sumber berita, menyaring signifikansi strategis, lalu mengekstraksi entitas (L2), peristiwa (L3), dan analisis 5W1H (L4) secara otomatis via AI."

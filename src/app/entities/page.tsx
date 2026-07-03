@@ -3,6 +3,7 @@ import { PageHeader, Chip } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { getQuotes, formatPrice } from "@/lib/quotes";
 import { EntityCardButton } from "@/components/entities/EntityCardButton";
+import { EntityLogo } from "@/components/EntityLogo";
 
 export const revalidate = 0;
 
@@ -12,7 +13,7 @@ type Ent = {
   slug: string;
   country_code: string | null;
   description: string | null;
-  attributes: { ticker?: string } | null;
+  attributes: { ticker?: string; fg500_rank?: number; domain?: string } | null;
   entity_types: { label: string; icon: string | null; category: string | null } | null;
   domains: { name: string } | null;
   subsectors: { name: string; code: string } | null;
@@ -66,7 +67,10 @@ export default async function EntitiesPage() {
               {g.items.map((e) => (
                 <EntityCardButton key={e.id} slug={e.slug} className="card p-4 w-full text-left block hover:border-emerald-500/40 transition-colors cursor-pointer">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="font-medium leading-snug">{e.name}</div>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <EntityLogo domain={e.attributes?.domain} icon={e.entity_types?.icon ?? null} name={e.name} size={30} />
+                      <div className="font-medium leading-snug min-w-0">{e.name}</div>
+                    </div>
                     {degree.get(e.id) ? (
                       <span className="text-[11px] font-mono text-accent/80 shrink-0 inline-flex items-center gap-1">
                         <Icon name="git-fork" size={12} /> {degree.get(e.id)}
@@ -106,6 +110,11 @@ export default async function EntitiesPage() {
                     );
                   })()}
                   <div className="flex flex-wrap gap-1.5 mt-3">
+                    {e.attributes?.fg500_rank && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-xs font-mono text-amber-700">
+                        <Icon name="award" size={11} /> FG500 #{e.attributes.fg500_rank}
+                      </span>
+                    )}
                     {e.domains && <Chip>{e.domains.name}</Chip>}
                     {e.country_code && <Chip>{e.country_code}</Chip>}
                     {e.subsectors && <Chip>GICS {e.subsectors.code}</Chip>}

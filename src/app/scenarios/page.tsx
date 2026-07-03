@@ -35,7 +35,7 @@ export default async function ScenariosPage() {
   return (
     <div>
       <PageHeader
-        layer="Foresight · Value at Stake"
+        layer="Foresight · Nilai Dipertaruhkan"
         icon="git-fork"
         title="Skenario & Nilai Dipertaruhkan"
         subtitle="Bukan hanya memprediksi apakah sesuatu terjadi, tetapi memodelkan berapa nilainya di tiap cabang masa depan. Mesin skenario kontingen-keputusan: putar tiap tuas antara lebih vs kurang terlibat dan lihat nilai tertangkap vs berisiko secara langsung."

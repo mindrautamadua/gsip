@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { ScoreBadge, Chip } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { GradingBadge } from "@/components/GradingBadge";
+import { statusTxt, statusLabel } from "@/lib/status";
 
 export const revalidate = 0;
 
@@ -41,13 +42,6 @@ const ROLE_LABEL: Record<string, string> = {
   involves: "Involves",
   occurs_in: "Occurs in",
   target_of: "Target of",
-};
-
-const STATUS_COLOR: Record<string, string> = {
-  open: "text-accent",
-  in_progress: "text-amber-600",
-  done: "text-accent",
-  cancelled: "text-[var(--muted)]",
 };
 
 export default async function EventDetailPage({
@@ -254,8 +248,8 @@ export default async function EventDetailPage({
                       {ac.priority != null && <span>· P{ac.priority}</span>}
                     </div>
                   </div>
-                  <span className={`ml-auto text-xs font-mono shrink-0 ${STATUS_COLOR[ac.status] ?? ""}`}>
-                    {ac.status}
+                  <span className={`ml-auto text-xs font-mono shrink-0 ${statusTxt(ac.status)}`}>
+                    {statusLabel(ac.status)}
                   </span>
                 </div>
               ))}

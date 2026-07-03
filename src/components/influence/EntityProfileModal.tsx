@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { countryName } from "@/lib/countries";
+import { logoUrls } from "@/lib/logo";
 import { Skeleton } from "@/components/Skeleton";
+import { EntityLogo } from "@/components/EntityLogo";
 
 export type Profile = {
   name: string;
@@ -13,6 +15,8 @@ export type Profile = {
   description: string | null;
   title: string | null;
   influence: number;
+  fg500_rank: number | null;
+  domain: string | null;
   breakdown: { degree?: number; event_impact?: number; market_cap_usd_bn?: number | null } | null;
   type: string | null;
   icon: string;
@@ -20,6 +24,12 @@ export type Profile = {
   photo: string | null;
   gallery: { url: string; caption: string | null }[];
   insights: { label: string; value: string }[];
+  benchmark: {
+    scope: string;
+    count: number;
+    dims: { key: string; label: string; rank: number; of: number; percentile: number; value: number; leaderName: string; leaderValue: number; betterLow: boolean }[];
+    peers: { name: string; slug: string; cc: string | null; domain: string | null; marketCap: number | null; influence: number; fg500: number | null; self: boolean }[];
+  } | null;
   leads: { name: string; slug: string; icon: string | null }[];
   relationships: { rel: string; name: string; slug: string; icon: string | null; outgoing: boolean }[];
   events: { id: string; title: string; event_date: string | null; role: string; icon: string }[];
@@ -33,16 +43,34 @@ function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
 }
 
-export function Avatar({ src, name, size = 52 }: { src?: string | null; name: string; size?: number }) {
-  if (src) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={src} alt={name} className="rounded-full object-cover border border-[var(--border)]" style={{ width: size, height: size }} />;
+export function Avatar({ src, domain, name, size = 52 }: { src?: string | null; domain?: string | null; name: string; size?: number }) {
+  // photo (wiki portrait) first, then company logo from domain, then initials
+  const chain = [src, ...logoUrls(domain)].filter((s): s is string => !!s);
+  const [idx, setIdx] = useState(0);
+  const url = chain[idx];
+  const isPhoto = !!src && idx === 0;
+
+  if (!url) {
+    return (
+      <div className="rounded-full grid place-items-center bg-gradient-to-br from-emerald-400/30 to-amber-400/30 border border-[var(--border)] text-accent font-semibold"
+        style={{ width: size, height: size, fontSize: size * 0.32 }}>
+        {initials(name)}
+      </div>
+    );
   }
   return (
-    <div className="rounded-full grid place-items-center bg-gradient-to-br from-emerald-400/30 to-amber-400/30 border border-[var(--border)] text-accent font-semibold"
-      style={{ width: size, height: size, fontSize: size * 0.32 }}>
-      {initials(name)}
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={url}
+      alt={name}
+      onError={() => setIdx((i) => i + 1)}
+      className={
+        isPhoto
+          ? "rounded-full object-cover border border-[var(--border)]"
+          : "rounded-2xl object-contain bg-white border border-[var(--border)] p-1.5"
+      }
+      style={{ width: size, height: size }}
+    />
   );
 }
 
@@ -121,11 +149,16 @@ export function EntityProfileModal({ slug, onClose }: { slug: string; onClose: (
         ) : (
           <div>
             <div className="px-6 md:px-8 pt-8 pb-6 border-b border-[var(--hairline-soft)] flex items-start gap-4">
-              <Avatar src={profile.photo} name={profile.name} size={76} />
+              <Avatar src={profile.photo} domain={profile.domain} name={profile.name} size={76} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap mb-1.5">
                   <span className="eyebrow"><Icon name={profile.icon} size={12} className="text-accent" /> {profile.type}</span>
                   {profile.country_code && <span className="eyebrow">{countryName(profile.country_code)}</span>}
+                  {profile.fg500_rank && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[10px] font-mono uppercase tracking-[0.14em] text-amber-700">
+                      <Icon name="award" size={11} /> Fortune Global 500 · #{profile.fg500_rank}
+                    </span>
+                  )}
                 </div>
                 <h2 className="display text-2xl font-semibold tracking-tight leading-tight pr-8">{profile.name}</h2>
                 {profile.title && <p className="text-sm text-[var(--muted)] mt-1">{profile.title}</p>}
@@ -149,6 +182,54 @@ export function EntityProfileModal({ slug, onClose }: { slug: string; onClose: (
 
             <div className="px-6 md:px-8 py-6 space-y-6">
               {profile.description && <p className="text-sm leading-relaxed text-foreground/90">{profile.description}</p>}
+
+              {profile.benchmark && (
+                <Section icon="target" title={`Positioning Kompetitif — vs ${profile.benchmark.count} peer di ${profile.benchmark.scope}`}>
+                  <div className="space-y-3">
+                    {profile.benchmark.dims.map((d) => (
+                      <div key={d.key}>
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-[var(--muted)]">{d.label}</span>
+                          <span className="font-mono">
+                            <span className="text-accent font-semibold">#{d.rank}</span>
+                            <span className="text-[var(--muted)]"> / {d.of}</span>
+                            <span className="text-[var(--muted)]/70"> · top {100 - d.percentile}%</span>
+                          </span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-[var(--surface-2)] overflow-hidden">
+                          <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-green-600" style={{ width: `${d.percentile}%` }} />
+                        </div>
+                        {d.rank > 1 && (
+                          <div className="text-[10px] text-[var(--muted)]/70 mt-1">
+                            pemimpin: {d.leaderName} ({d.key === "fg500" ? `#${d.leaderValue}` : d.key === "market_cap" ? `$${d.leaderValue}bn` : d.leaderValue})
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 rounded-xl border border-[var(--border)] overflow-hidden">
+                    {profile.benchmark.peers.map((p) => {
+                      const inner = (
+                        <>
+                          <EntityLogo domain={p.domain} icon="building" name={p.name} size={22} />
+                          <span className={`flex-1 min-w-0 truncate ${p.self ? "font-semibold text-accent" : ""}`}>{p.name}</span>
+                          {p.marketCap != null && <span className="text-[11px] font-mono text-[var(--muted)] hidden sm:inline">${p.marketCap}bn</span>}
+                          <span className="text-xs font-mono tabular-nums text-accent w-7 text-right">{p.influence}</span>
+                        </>
+                      );
+                      const cls = "w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm border-b border-[var(--hairline-soft)] last:border-0";
+                      return p.self ? (
+                        <div key={p.slug} className={`${cls} bg-emerald-500/10`}>{inner}</div>
+                      ) : (
+                        <Link key={p.slug} href={`/entities/${p.slug}`} className={`${cls} hover:bg-[var(--surface)] transition-colors`}>
+                          {inner}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </Section>
+              )}
 
               {profile.gallery?.length > 0 && (
                 <Section icon="image" title="Foto Lokasi">
@@ -200,14 +281,7 @@ export function EntityProfileModal({ slug, onClose }: { slug: string; onClose: (
 
               {profile.relationships.length > 0 && (
                 <Section icon="share-2" title={`Relasi (${profile.relationships.length})`}>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.relationships.map((r, i) => (
-                      <Link key={i} href={`/entities/${r.slug}`} className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm hover:border-emerald-500/40 transition-colors">
-                        <span className="text-[11px] font-mono text-[var(--muted)]">{r.outgoing ? "" : "← "}{r.rel}{r.outgoing ? " →" : ""}</span>
-                        <Icon name={r.icon} size={13} className="text-accent" /> {r.name}
-                      </Link>
-                    ))}
-                  </div>
+                  <RelationGroups items={profile.relationships} />
                 </Section>
               )}
 
@@ -240,6 +314,74 @@ export function EntityProfileModal({ slug, onClose }: { slug: string; onClose: (
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+type Rel = Profile["relationships"][number];
+
+// Groups relationships by kind + direction. Single-item kinds stay direct links;
+// multi-item kinds collapse into an expandable header (same pattern as Global Pulse).
+function RelationGroups({ items }: { items: Rel[] }) {
+  const map = new Map<string, { rel: string; outgoing: boolean; items: Rel[] }>();
+  for (const r of items) {
+    const key = `${r.outgoing ? 1 : 0}|${r.rel}`;
+    const g = map.get(key) ?? { rel: r.rel, outgoing: r.outgoing, items: [] };
+    g.items.push(r);
+    map.set(key, g);
+  }
+  const groups = [...map.values()].sort((a, b) => b.items.length - a.items.length);
+  const soloDefault = groups.length <= 1;
+
+  return (
+    <div className="space-y-1.5">
+      {groups.map((g, i) => (
+        <RelationGroup key={i} group={g} defaultOpen={soloDefault} />
+      ))}
+    </div>
+  );
+}
+
+function relDir(rel: string, outgoing: boolean) {
+  return outgoing ? `${rel} →` : `← ${rel}`;
+}
+
+function RelationGroup({ group, defaultOpen }: { group: { rel: string; outgoing: boolean; items: Rel[] }; defaultOpen: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const single = group.items.length === 1;
+
+  if (single) {
+    const r = group.items[0];
+    return (
+      <Link href={`/entities/${r.slug}`} className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm hover:border-emerald-500/40 transition-colors">
+        <span className="text-[11px] font-mono text-[var(--muted)] shrink-0">{relDir(group.rel, group.outgoing)}</span>
+        <Icon name={r.icon} size={13} className="text-accent shrink-0" />
+        <span className="truncate">{r.name}</span>
+      </Link>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--surface-2)] transition-colors cursor-pointer text-left"
+      >
+        <Icon name="chevron-right" size={14} className={`text-[var(--muted)] shrink-0 transition-transform ${open ? "rotate-90" : ""}`} />
+        <span className="text-[11px] font-mono text-[var(--muted)]">{relDir(group.rel, group.outgoing)}</span>
+        <span className="ml-auto inline-flex items-center justify-center min-w-[1.25rem] h-5 rounded-full bg-emerald-500/12 text-[11px] font-mono text-emerald-700 px-1.5">{group.items.length}</span>
+      </button>
+      {open && (
+        <div className="border-t border-[var(--hairline-soft)] divide-y divide-[var(--hairline-soft)] animate-[float-in_0.2s_cubic-bezier(0.16,1,0.3,1)]">
+          {group.items.map((r, i) => (
+            <Link key={i} href={`/entities/${r.slug}`} className="flex items-center gap-2 pl-9 pr-3 py-2 text-sm hover:bg-[var(--surface-2)] transition-colors">
+              <Icon name={r.icon} size={13} className="text-accent shrink-0" />
+              <span className="truncate">{r.name}</span>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

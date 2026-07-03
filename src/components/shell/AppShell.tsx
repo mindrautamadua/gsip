@@ -14,7 +14,12 @@ export function AppShell({ children, user }: { children: React.ReactNode; user: 
 
   return (
     <UIProvider>
-      <div className="flex min-h-screen">
+      <div className="aurora" aria-hidden>
+        <span className="aurora-blob aurora-a" />
+        <span className="aurora-blob aurora-b" />
+        <span className="aurora-blob aurora-c" />
+      </div>
+      <div className="relative z-10 flex min-h-screen">
         <Sidebar user={user} />
         <div className="flex-1 min-w-0 flex flex-col">
           <TopBar user={user} />

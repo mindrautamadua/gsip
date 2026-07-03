@@ -1,58 +1,56 @@
 import { supabase } from "@/lib/supabase";
 import { PageHeader } from "@/components/ui";
-import { Icon } from "@/components/Icon";
+import { DomainGrid, type DomainCard } from "@/components/domains/DomainGrid";
 
 export const revalidate = 0;
+
+type EntRow = {
+  id: string; name: string; slug: string; domain_id: string | null;
+  entity_types: { label: string; icon: string | null } | { label: string; icon: string | null }[] | null;
+};
+type EvRow = { id: string; title: string; event_date: string | null; importance: number | null; domain_id: string | null };
+
+const pick = <T,>(x: T | T[] | null | undefined): T | null => (Array.isArray(x) ? x[0] : x) ?? null;
 
 export default async function DomainsPage() {
   const [{ data: domains }, { data: ents }, { data: evs }] = await Promise.all([
     supabase.from("domains").select("id,code,name,description,icon").order("sort_order"),
-    supabase.from("entities").select("domain_id"),
-    supabase.from("events").select("domain_id"),
+    supabase
+      .from("entities")
+      .select("id,name,slug,domain_id,entity_types(label,icon)")
+      .order("name")
+      .returns<EntRow[]>(),
+    supabase
+      .from("events")
+      .select("id,title,event_date,importance,domain_id")
+      .order("event_date", { ascending: false, nullsFirst: false })
+      .returns<EvRow[]>(),
   ]);
 
-  const tally = (rows: { domain_id: string | null }[] | null) => {
-    const m = new Map<string, number>();
-    (rows ?? []).forEach((r) => {
-      if (r.domain_id) m.set(r.domain_id, (m.get(r.domain_id) ?? 0) + 1);
-    });
-    return m;
-  };
-  const entCount = tally(ents);
-  const evCount = tally(evs);
+  const cards: DomainCard[] = (domains ?? []).map((d) => ({
+    id: d.id,
+    code: d.code,
+    name: d.name,
+    description: d.description,
+    icon: d.icon,
+    entities: (ents ?? [])
+      .filter((e) => e.domain_id === d.id)
+      .map((e) => ({ id: e.id, name: e.name, slug: e.slug, type: pick(e.entity_types)?.label ?? null, icon: pick(e.entity_types)?.icon ?? null })),
+    events: (evs ?? [])
+      .filter((ev) => ev.domain_id === d.id)
+      .map((ev) => ({ id: ev.id, title: ev.title, date: ev.event_date, importance: ev.importance })),
+  }));
 
   return (
     <div>
       <PageHeader
-        layer="Layer 1 · Strategic Domain"
+        layer="Layer 1 · Domain Strategis"
         icon="globe"
-        title="Strategic Domains"
-        subtitle="Klasifikasi paling atas — lensa pengamatan dunia. Relatif stabil dan jarang berubah. Setiap entitas & peristiwa dipetakan ke sebuah domain."
+        title="Domain Strategis"
+        subtitle="Klasifikasi paling atas — lensa pengamatan dunia. Relatif stabil dan jarang berubah. Setiap entitas & peristiwa dipetakan ke sebuah domain. Klik kartu untuk detail."
       />
       <div className="p-8">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {(domains ?? []).map((d) => (
-            <div key={d.id} className="card p-5 hover:border-emerald-500/40 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 grid place-items-center text-accent">
-                  <Icon name={d.icon} size={20} />
-                </div>
-                <div className="font-medium">{d.name}</div>
-              </div>
-              {d.description && (
-                <p className="text-sm text-[var(--muted)] mt-3 line-clamp-2">{d.description}</p>
-              )}
-              <div className="flex items-center gap-4 mt-4 text-xs font-mono text-[var(--muted)]">
-                <span className="inline-flex items-center gap-1">
-                  <Icon name="share-2" size={13} /> {entCount.get(d.id) ?? 0} entities
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Icon name="radar" size={13} /> {evCount.get(d.id) ?? 0} events
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <DomainGrid domains={cards} />
       </div>
     </div>
   );
